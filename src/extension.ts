@@ -16,6 +16,7 @@ import { marpCoreOptionForPreview, clearMarpCoreOptionCache } from './option'
 import contentSection from './plugins/content-section'
 import customTheme from './plugins/custom-theme'
 import lineNumber from './plugins/line-number'
+import mermaidPlugin from './plugins/mermaid'
 import outline, { rule as outlineRule } from './plugins/outline'
 import { isOverflowTrackerEvent } from './preview/overflow-tracker'
 import themes, { Themes } from './themes'
@@ -71,6 +72,7 @@ export const getExtendMarkdownIt = ({
           .use(contentSection)
           .use(outline)
           .use(lineNumber)
+          .use(mermaidPlugin)
 
         // Switch rules
         if (!(marpConfiguration().get<boolean>('outlineExtension') ?? true)) {

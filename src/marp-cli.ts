@@ -8,6 +8,7 @@ import type {
 import { nanoid } from 'nanoid'
 import { TextDocument, Uri, workspace } from 'vscode'
 import { WorkFile, marpCoreOptionForCLI } from './option'
+import { preprocessMermaidInMarkdown } from './plugins/mermaid-preprocess'
 import { writeFile, unlink } from './utils'
 
 const createCleanup = (target: Uri) => async () => {
@@ -28,9 +29,12 @@ export interface MarpCLIErrorHandler {
 export async function createWorkFile(doc: TextDocument): Promise<WorkFile> {
   const { encoding } = doc
   const encodingAPIavailable = !!encoding
+  const rawText = doc.getText()
+  const needsMermaidPreprocessing = rawText.includes('```mermaid')
 
-  // Use a real file if possible
+  // Use a real file if possible (but skip if mermaid preprocessing is needed)
   if (
+    !needsMermaidPreprocessing &&
     doc.uri.scheme === 'file' &&
     !doc.isDirty &&
     (!encodingAPIavailable || encoding === 'utf8' || encoding === 'utf8bom')
@@ -38,7 +42,9 @@ export async function createWorkFile(doc: TextDocument): Promise<WorkFile> {
     return { path: doc.uri.fsPath, cleanup: () => Promise.resolve() }
   }
 
-  const text = doc.getText()
+  const text = needsMermaidPreprocessing
+    ? preprocessMermaidInMarkdown(rawText)
+    : rawText
   const tmpFileName = `.marp-vscode-tmp-${nanoid()}`
 
   // Try to create tmp file to the same directory as a document

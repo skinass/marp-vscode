@@ -13,10 +13,12 @@ module.exports = (env) => {
     target: 'node',
     externals: {
       ...conf.externals,
-      ...dependencies.reduce((externals, dependency) => {
-        externals[dependency] = `commonjs ${dependency}`
-        return externals
-      }, {}),
+      ...dependencies
+        .filter((dep) => dep !== 'beautiful-mermaid')
+        .reduce((externals, dependency) => {
+          externals[dependency] = `commonjs ${dependency}`
+          return externals
+        }, {}),
     },
   }
 }

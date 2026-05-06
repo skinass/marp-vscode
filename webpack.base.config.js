@@ -36,8 +36,14 @@ module.exports = ({ outputPath, production, minimizerFormat }) => ({
         target: 'es2021',
         format: minimizerFormat,
         keepNames: true,
+        // Prevent tree-shaking of elkjs GWT-compiled code that has side effects
+        pure: undefined,
       }),
     ],
+    // Prevent webpack from tree-shaking away elkjs side-effect-only modules
+    providedExports: false,
+    usedExports: false,
+    concatenateModules: false,
   },
   plugins: [
     // Remove 'node:' prefix
